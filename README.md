@@ -85,7 +85,7 @@ python experiments/train_eval_affordance.py --data_dir /hdd/data/env6_td_pnp_pus
 
 python experiments/train_eval_affordance.py --data_dir /hdd/data/env6_td_pnp_push/ --vqvae /hdd/ckpts/ptp/vqvae/ --gin_param train_eval.z_dim=8 --gin_param train_eval.affordance_pred_weight=1000 --gin_param train_eval.affordance_beta=0.1 --dt 30 --dt_tolerance 10 --max_steps 2 --root_dir /hdd/ckpts/ptp/affordance_zdim8_weight1000_beta0.1_run0/dt30
 
-python3 experiments/train_eval_affordance.py --data_dir /hdd/data/env6_td_pnp_push/ --vqvae /hdd/ckpts/ptp/vqvae/ --gin_param train_eval.z_dim=8 --gin_param train_eval.affordance_pred_weight=1000 --gin_param train_eval.affordance_beta=0.1 --gin_param train_eval.dataset_type='final' --dt 60 --dt_tolerance 10 --max_steps 1 --root_dir /hdd/ckpts/ptp/affordance_zdim8_weight1000_beta0.1_run0/dt60
+python3 experiments/train_eval_affordance.py --data_dir /hdd/data/env6_td_pnp_push/ --vqvae /hdd/ckpts/ptp/vqvae/ --dataset_type final --gin_param train_eval.z_dim=8 --gin_param train_eval.affordance_pred_weight=1000 --gin_param train_eval.affordance_beta=0.1 --dt 60 --dt_tolerance 10 --max_steps 1 --root_dir /hdd/ckpts/ptp/affordance_zdim8_weight1000_beta0.1_run0/dt60
 ```
 After training has completed, we compile the hierarchical affordance model:
 ```
