@@ -11,7 +11,7 @@ Project Page: https://sites.google.com/view/planning-to-practice.
 
 BibTex:
 ```
-@article{fang2022planning,
+@article{fang2022ptp,
       title={Planning to Practice: Efficient Online Fine-Tuning by Composing Goals in Latent Space}, 
       author={Kuan Fang and Patrick Yin and Ashvin Nair and Sergey Levine},
       journal={International Conference on Intelligent Robots and Systems (IROS)}, 
