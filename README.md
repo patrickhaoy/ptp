@@ -1,4 +1,23 @@
+
 # Planning-to-Practice (PTP)
+
+This repo contains the code for:
+
+[Planning to Practice: Efficient Online Fine-Tuning by Composing Goals in Latent Space](https://arxiv.org/abs/2106.00671)
+Kuan Fang*, Patrick Yin*, Ashvin Nair, Sergey Levine. 
+International Conference on Intelligent Robots and Systems (IROS), 2022.
+
+Project Page: https://sites.google.com/view/planning-to-practice.
+
+BibTex:
+```
+@article{fang2022planning,
+      title={Planning to Practice: Efficient Online Fine-Tuning by Composing Goals in Latent Space}, 
+      author={Kuan Fang and Patrick Yin and Ashvin Nair and Sergey Levine},
+      journal={International Conference on Intelligent Robots and Systems (IROS)}, 
+      year={2022},
+}
+```
 
 ## Installation
 
@@ -97,13 +116,3 @@ LOCAL_LOG_DIR/<exp_prefix>/<foldername>
  - inside this folder, you should see a file called `params.pkl`. To visualize a policy, run
 
 You can visualize the results by running `jupyter notebook`, opening `ptp_reproduce.ipynb`, and setting `dirs = [LOCAL_LOG_DIR/<exp_prefix>/<foldername>]`.
-
-## Credit
-This repo contains the code for
-
-[Planning to Practice: Efficient Online Fine-Tuning by Composing Goals in Latent Space](https://arxiv.org/abs/2106.00671)
-Kuan Fang*, Patrick Yin*, Ashvin Nair, Sergey Levine. International Conference on Intelligent Robots and Systems (IROS), 2022.
-
-Videos of these experiments can seen on our website: https://sites.google.com/view/planning-to-practice.
-
-This repository was developed by [Kuan Fang](https://github.com/kuanfang), [Patrick Yin](https://github.com/patrickhaoy), and [Ashvin Nair](https://github.com/anair13). It extends [rlkit](https://github.com/anair13/rlkit), which was developed by [Vitchyr Pong](https://github.com/vitchyr), [Murtaza Dalal](https://github.com/mdalal2020), [Steven Lin](https://github.com/stevenlin1111), and [Ashvin Nair](https://github.com/anair13).
