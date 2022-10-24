@@ -1,50 +1,25 @@
-README last updated on: 07/25/2022
 
-# railrl
+# Planning-to-Practice (PTP)
 
 ## Installation
 
 ### Create Conda Env
 
-Install and use the included anaconda environment
+Install and use the included anaconda environment.
 ```
-$ conda env create -f docker/railrl-ptp/railrl-ptp.yml
-$ source activate railrl-ptp
+$ conda env create -f docker/ptp.yml
+$ source activate ptp
 (railrl-ptp) $
 ```
 Or if you want you can use the docker image included.
 
-### Download Simulation Env Code
+### Dependencies
+Download the dependency repos.
 - [bullet-manipulation](https://github.com/patrickhaoy/bullet-manipulation) (contains environments): ```git clone https://github.com/patrickhaoy/bullet-manipulation.git```
 - [multiworld](https://github.com/vitchyr/multiworld) (contains environments): ```git clone https://github.com/vitchyr/multiworld```
-
-### Download Visualization Code
 - [rllab](https://github.com/rll/rllab) (contains visualization code):  ```git clone https://github.com/rll/rllab```
 
-### (Optional) Install doodad
-I recommend installing [doodad](https://github.com/justinjfu/doodad) to
-launch jobs. Some of its nice features include:
- - Easily switch between running code locally, on a remote compute with
- Docker, on EC2 with Docker
- - Easily add your dependencies that can't be installed via pip (e.g. you
- borrowed someone's code)
-
-If you install doodad, also modify `CODE_DIRS_TO_MOUNT` in `config.py` to
-include:
-- Path to rllab directory
-- Path to railrl directory
-- Path to other code you want to juse
-
-You'll probably also need to update the other variables besides the docker
-images/instance stuff.
-
-### Setup Config File
-
-You must setup the config file for launching experiments, providing paths to your code and data directories. Inside `railrl/config/launcher_config.py`, fill in the appropriate paths. You can use `railrl/config/launcher_config_template.py` as an example reference.
-
-```cp railrl/launchers/config-template.py railrl/launchers/config.py```
-
-### Add paths
+Add paths.
 ```
 export PYTHONPATH=$PYTHONPATH:/path/to/multiworld
 export PYTHONPATH=$PYTHONPATH:/path/to/doodad
@@ -53,10 +28,16 @@ export PYTHONPATH=$PYTHONPATH:/path/to/bullet-manipulation/bullet-manipulation/r
 export PYTHONPATH=$PYTHONPATH:/path/to/railrl-private
 ```
 
+### Setup Config File
+
+You must setup the config file for launching experiments, providing paths to your code and data directories. Inside `railrl/config/launcher_config.py`, fill in the appropriate paths. You can use `railrl/config/launcher_config_template.py` as an example reference.
+
+```cp railrl/launchers/config-template.py railrl/launchers/config.py```
+
 ## Training and Visualization
 Below we assume the data is stored at `/hdd/data` and the trained models are stored at `/hdd/ckpts`.
 
-### Dataset and Goals
+### Offline Dataset and Goals
 Download the simulation data and goals from [here](https://drive.google.com/file/d/1o-jSgxibTH4FL6emFzUEQNkSfn7jdRus/view?usp=sharing). Alternatively, you can recollect a new dataset by running
 ```
 python shapenet_scripts/4dof_rotate_td_pnp_push_demo_collector_parallel.py --save_path /hdd/data/ --name env6_td_pnp_push --downsample --num_threads 4
@@ -85,7 +66,7 @@ python experiments/train_eval_affordance.py --data_dir /hdd/data/env6_td_pnp_pus
 
 python experiments/train_eval_affordance.py --data_dir /hdd/data/env6_td_pnp_push/ --vqvae /hdd/ckpts/ptp/vqvae/ --gin_param train_eval.z_dim=8 --gin_param train_eval.affordance_pred_weight=1000 --gin_param train_eval.affordance_beta=0.1 --dt 30 --dt_tolerance 10 --max_steps 2 --root_dir /hdd/ckpts/ptp/affordance_zdim8_weight1000_beta0.1_run0/dt30
 
-python3 experiments/train_eval_affordance.py --data_dir /hdd/data/env6_td_pnp_push/ --vqvae /hdd/ckpts/ptp/vqvae/ --dataset_type final --gin_param train_eval.z_dim=8 --gin_param train_eval.affordance_pred_weight=1000 --gin_param train_eval.affordance_beta=0.1 --dt 60 --dt_tolerance 10 --max_steps 1 --root_dir /hdd/ckpts/ptp/affordance_zdim8_weight1000_beta0.1_run0/dt60
+python experiments/train_eval_affordance.py --data_dir /hdd/data/env6_td_pnp_push/ --vqvae /hdd/ckpts/ptp/vqvae/ --dataset_type final --gin_param train_eval.z_dim=8 --gin_param train_eval.affordance_pred_weight=1000 --gin_param train_eval.affordance_beta=0.1 --dt 60 --dt_tolerance 10 --max_steps 1 --root_dir /hdd/ckpts/ptp/affordance_zdim8_weight1000_beta0.1_run0/dt60
 ```
 After training has completed, we compile the hierarchical affordance model:
 ```
