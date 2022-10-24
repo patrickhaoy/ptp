@@ -5,7 +5,7 @@ from absl import flags
 from roboverse.envs.sawyer_drawer_pnp_push import SawyerDrawerPnpPush
 
 import rlkit.util.hyperparameter as hyp
-from rlkit.demos.source.encoder_dict_to_mdp_path_loader import EncoderDictToMDPPathLoader
+from rlkit.demos.source.encoder_dict_to_mdp_path_loader import EncoderDictToMDPPathLoader  # NOQA
 from rlkit.launchers.arglauncher import run_variants
 from rlkit.torch.sac.policies import GaussianPolicy
 from rlkit.torch.sac.policies import GaussianTwoChannelCNNPolicy
@@ -36,12 +36,13 @@ FLAGS = flags.FLAGS
 dataset = 'env6_td_pnp_push'
 
 
-def get_paths(data_dir):  
+def get_paths(data_dir):
     if dataset == 'env6_td_pnp_push':
         data_path = 'env6_td_pnp_push/'
         data_path = os.path.join(data_dir, data_path)
         demo_paths = [
-            dict(path=data_path + 'env6_td_pnp_push_demos_{}.pkl'.format(str(i)),
+            dict(path=data_path +
+                 'env6_td_pnp_push_demos_{}.pkl'.format(str(i)),
                  obs_dict=True,
                  is_demo=True,
                  use_latents=True)
@@ -125,7 +126,7 @@ def get_default_variant(data_path, demo_paths):
         online_offline_split=True,
         reward_kwargs=dict(
             reward_type='sparse',
-            epsilon=3.0, 
+            epsilon=2.0,
         ),
         online_offline_split_replay_buffer_kwargs=dict(
             online_replay_buffer_kwargs=dict(
@@ -202,11 +203,11 @@ def get_default_variant(data_path, demo_paths):
         ),
 
         use_expl_planner=True,
-        expl_planner_type='scripted',
+        expl_planner_type='hierarchical',
         expl_planner_kwargs=dict(
             cost_mode='l2_vf_ptp',
-            prior_weight=0.0,
-            values_weight=0.0,
+            prior_weight=0.01,
+            values_weight=0.001,
             buffer_size=1000,
         ),
         expl_planner_scripted_goals=None,
@@ -214,16 +215,16 @@ def get_default_variant(data_path, demo_paths):
             num_planning_steps=8,
             fraction_planning=1.0,
             subgoal_timeout=30,
-            subgoal_reaching_thresh=3.0,
+            subgoal_reaching_thresh=2.0,
             mode='o',
         ),
 
         use_eval_planner=True,
-        eval_planner_type='scripted',
+        eval_planner_type='hierarchical',
         eval_planner_kwargs=dict(
             cost_mode='l2_vf_ptp',
-            prior_weight=0.0,
-            values_weight=0.0,
+            prior_weight=0.01,
+            values_weight=0.001,
             buffer_size=1000,
         ),
         eval_planner_scripted_goals=None,
@@ -231,7 +232,7 @@ def get_default_variant(data_path, demo_paths):
             num_planning_steps=8,
             fraction_planning=1.0,
             subgoal_timeout=30,
-            subgoal_reaching_thresh=3.0,
+            subgoal_reaching_thresh=2.0,
             mode='o',
         ),
 
@@ -258,7 +259,7 @@ def get_default_variant(data_path, demo_paths):
         num_video_columns=5,
         save_paths=False,
 
-        method_name='',
+        method_name='ptp',
     )
 
     return default_variant
@@ -321,11 +322,11 @@ def get_search_space():
     return search_space
 
 
-def process_variant(variant, data_path):  
+def process_variant(variant, data_path):  # NOQA
     # Error checking
-    assert variant['algo_kwargs']['start_epoch'] % variant['algo_kwargs']['eval_epoch_freq'] == 0  
+    assert variant['algo_kwargs']['start_epoch'] % variant['algo_kwargs']['eval_epoch_freq'] == 0  # NOQA
     if variant['algo_kwargs']['start_epoch'] < 0:
-        assert variant['algo_kwargs']['start_epoch'] % variant['algo_kwargs']['offline_expl_epoch_freq'] == 0  
+        assert variant['algo_kwargs']['start_epoch'] % variant['algo_kwargs']['offline_expl_epoch_freq'] == 0  # NOQA
     if variant['use_pretrained_rl_path']:
         assert variant['algo_kwargs']['start_epoch'] == 0
     if variant['trainer_kwargs']['use_online_beta']:
@@ -344,15 +345,21 @@ def process_variant(variant, data_path):
         eval_seed_str = ''
 
     if variant['expl_planner_type'] == 'scripted':
-        eval_goals = os.path.join(data_path, f'{full_open_close_str}{env_type}_scripted_goals{eval_seed_str}.pkl')  
+        eval_goals = os.path.join(
+            data_path,
+            f'{full_open_close_str}{env_type}_scripted_goals{eval_seed_str}.pkl')  # NOQA
     else:
-        eval_goals = os.path.join(data_path, f'{full_open_close_str}{env_type}_goals{eval_seed_str}.pkl')  
+        eval_goals = os.path.join(
+            data_path,
+            f'{full_open_close_str}{env_type}_goals{eval_seed_str}.pkl')
 
     if variant['expl_planner_scripted_goals'] is not None:
-        variant['expl_planner_scripted_goals'] = os.path.join(data_path, variant['expl_planner_scripted_goals'])  
+        variant['expl_planner_scripted_goals'] = os.path.join(
+            data_path, variant['expl_planner_scripted_goals'])
 
     if variant['eval_planner_scripted_goals'] is not None:
-        variant['eval_planner_scripted_goals'] = os.path.join(data_path, variant['eval_planner_scripted_goals'])  
+        variant['eval_planner_scripted_goals'] = os.path.join(
+            data_path, variant['eval_planner_scripted_goals'])
 
     ########################################
     # Goal sampling modes.
@@ -360,18 +367,18 @@ def process_variant(variant, data_path):
     variant['presampled_goal_kwargs']['eval_goals'] = eval_goals
     variant['path_loader_kwargs']['demo_paths'] = (
         variant['path_loader_kwargs']['demo_paths'][:variant['num_demos']])
-    variant['online_offline_split_replay_buffer_kwargs']['offline_replay_buffer_kwargs']['max_size'] = min(  
+    variant['online_offline_split_replay_buffer_kwargs']['offline_replay_buffer_kwargs']['max_size'] = min(  # NOQA
         int(6E5), int(500*75*variant['num_demos']))
-    variant['online_offline_split_replay_buffer_kwargs']['online_replay_buffer_kwargs']['max_size'] = min(  
+    variant['online_offline_split_replay_buffer_kwargs']['online_replay_buffer_kwargs']['max_size'] = min(  # NOQA
         int(4/6 * 500*75*variant['num_demos']),
-        int(1E6 - variant['online_offline_split_replay_buffer_kwargs']['offline_replay_buffer_kwargs']['max_size']))  
+        int(1E6 - variant['online_offline_split_replay_buffer_kwargs']['offline_replay_buffer_kwargs']['max_size']))  # NOQA
 
     if variant['use_both_ground_truth_and_affordance_expl_goals']:
         variant['exploration_goal_sampling_mode'] = (
             'conditional_vae_prior_and_not_done_presampled_images')
         variant['training_goal_sampling_mode'] = 'presample_latents'
         variant['presampled_goal_kwargs']['expl_goals'] = eval_goals
-        variant['presampled_goal_kwargs']['expl_goals_kwargs']['affordance_sampling_prob'] = variant['affordance_sampling_prob']  
+        variant['presampled_goal_kwargs']['expl_goals_kwargs']['affordance_sampling_prob'] = variant['affordance_sampling_prob']  # NOQA
     elif variant['ground_truth_expl_goals']:
         variant['exploration_goal_sampling_mode'] = 'presampled_images'
         variant['training_goal_sampling_mode'] = 'presampled_images'
@@ -495,7 +502,7 @@ def process_variant(variant, data_path):
     ########################################
     # Misc.
     ########################################
-    if variant['reward_kwargs']['reward_type'] in ['sparse', 'onion', 'highlevel']:  
+    if variant['reward_kwargs']['reward_type'] in ['sparse']:
         variant['trainer_kwargs']['max_value'] = 0.0
         variant['trainer_kwargs']['min_value'] = -1. / (
             1. - variant['trainer_kwargs']['discount'])

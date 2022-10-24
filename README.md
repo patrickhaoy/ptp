@@ -1,4 +1,3 @@
-
 # Planning-to-Practice (PTP)
 
 ## Installation
@@ -9,9 +8,8 @@ Install and use the included anaconda environment.
 ```
 $ conda env create -f docker/ptp.yml
 $ source activate ptp
-(railrl-ptp) $
+(ptp) $
 ```
-Or if you want you can use the docker image included.
 
 ### Dependencies
 Download the dependency repos.
@@ -34,81 +32,61 @@ You must setup the config file for launching experiments, providing paths to you
 
 ```cp railrl/launchers/config-template.py railrl/launchers/config.py```
 
-## Training and Visualization
-Below we assume the data is stored at `/hdd/data` and the trained models are stored at `/hdd/ckpts`.
+## Running Experiments
+Below we assume the data is stored at `DATA_PATH` and the trained models are stored at `DATA_CKPT`.
 
 ### Offline Dataset and Goals
 Download the simulation data and goals from [here](https://drive.google.com/file/d/1o-jSgxibTH4FL6emFzUEQNkSfn7jdRus/view?usp=sharing). Alternatively, you can recollect a new dataset by running
 ```
-python shapenet_scripts/4dof_rotate_td_pnp_push_demo_collector_parallel.py --save_path /hdd/data/ --name env6_td_pnp_push --downsample --num_threads 4
+python shapenet_scripts/4dof_rotate_td_pnp_push_demo_collector_parallel.py --save_path DATA_PATH/ --name env6_td_pnp_push --downsample --num_threads 4
 ```
 and resample new goals by running
 ```
-python shapenet_scripts/presample_goals_with_plan.py --output_dir /hdd/data/env6_td_pnp_push/ --downsample --test_env_seeds 0 1 2 --timeout_k_steps_after_done 5 --mix_timeout_k
+python shapenet_scripts/presample_goals_with_plan.py --output_dir DATA_PATH/env6_td_pnp_push/ --downsample --test_env_seeds 0 1 2 --timeout_k_steps_after_done 5 --mix_timeout_k
 ```
 from the `bullet-manipulation` repository.
 
-### Training and Visualizing VQ-VAE
+### Training VQ-VAE
 To pretrain a VQ-VAE on the simulation dataset, run
 ```
-python experiments/train_eval_vqvae.py --data_dir /hdd/data/env6_td_pnp_push --root_dir /hdd/ckpts/ptp/vqvae
+python experiments/train_eval_vqvae.py --data_dir DATA_PATH/env6_td_pnp_push --root_dir DATA_CKPT/ptp/vqvae
 ```
 To encode the existing data with the pretrained VQ-VAE, run
 ```
-python experiments/encode_dataset.py --data_dir /hdd/data/env6_td_pnp_push --root_dir /hdd/ckpts/ptp/vqvae
+python experiments/encode_dataset.py --data_dir DATA_PATH/env6_td_pnp_push --root_dir DATA_CKPT/ptp/vqvae
 ```
-To visualize loss curves and reconstructions of images with VQ-VAE, open the tensorboard log file with `tensorboard --logdir /hdd/ckpts/ptp/vqvae`.
+To visualize loss curves and reconstructions of images with VQ-VAE, open the tensorboard log file with `tensorboard --logdir DATA_CKPT/ptp/vqvae`.
 
-### Training and Visualizing Affordance Model
+### Training Affordance Model
 Next, we train the affordance models of multiple time scales with the pretrained VQ-VAE (Note that for `dt=60`, we use `train_eval.dataset_type='final'` to enable goal prediction beyond the horizon of prior data):
 ```
-python experiments/train_eval_affordance.py --data_dir /hdd/data/env6_td_pnp_push/ --vqvae /hdd/ckpts/ptp/vqvae/ --gin_param train_eval.z_dim=8 --gin_param train_eval.affordance_pred_weight=1000 --gin_param train_eval.affordance_beta=0.1 --dt 15 --dt_tolerance 5 --max_steps 3 --root_dir /hdd/ckpts/ptp/affordance_zdim8_weight1000_beta0.1_run0/dt15
+python experiments/train_eval_affordance.py --data_dir DATA_PATH/env6_td_pnp_push/ --vqvae DATA_CKPT/ptp/vqvae/ --gin_param train_eval.z_dim=8 --gin_param train_eval.affordance_pred_weight=1000 --gin_param train_eval.affordance_beta=0.1 --dt 15 --dt_tolerance 5 --max_steps 3 --root_dir DATA_CKPT/ptp/affordance_zdim8_weight1000_beta0.1_run0/dt15
 
-python experiments/train_eval_affordance.py --data_dir /hdd/data/env6_td_pnp_push/ --vqvae /hdd/ckpts/ptp/vqvae/ --gin_param train_eval.z_dim=8 --gin_param train_eval.affordance_pred_weight=1000 --gin_param train_eval.affordance_beta=0.1 --dt 30 --dt_tolerance 10 --max_steps 2 --root_dir /hdd/ckpts/ptp/affordance_zdim8_weight1000_beta0.1_run0/dt30
+python experiments/train_eval_affordance.py --data_dir DATA_PATH/env6_td_pnp_push/ --vqvae DATA_CKPT/ptp/vqvae/ --gin_param train_eval.z_dim=8 --gin_param train_eval.affordance_pred_weight=1000 --gin_param train_eval.affordance_beta=0.1 --dt 30 --dt_tolerance 10 --max_steps 2 --root_dir DATA_CKPT/ptp/affordance_zdim8_weight1000_beta0.1_run0/dt30
 
-python experiments/train_eval_affordance.py --data_dir /hdd/data/env6_td_pnp_push/ --vqvae /hdd/ckpts/ptp/vqvae/ --dataset_type final --gin_param train_eval.z_dim=8 --gin_param train_eval.affordance_pred_weight=1000 --gin_param train_eval.affordance_beta=0.1 --dt 60 --dt_tolerance 10 --max_steps 1 --root_dir /hdd/ckpts/ptp/affordance_zdim8_weight1000_beta0.1_run0/dt60
+python experiments/train_eval_affordance.py --data_dir DATA_PATH/env6_td_pnp_push/ --vqvae DATA_CKPT/ptp/vqvae/ --dataset_type final --gin_param train_eval.z_dim=8 --gin_param train_eval.affordance_pred_weight=1000 --gin_param train_eval.affordance_beta=0.1 --dt 60 --dt_tolerance 10 --max_steps 1 --root_dir DATA_CKPT/ptp/affordance_zdim8_weight1000_beta0.1_run0/dt60
 ```
 After training has completed, we compile the hierarchical affordance model:
 ```
-python experiments/compile_hierarchical_affordance.py --input /hdd/ckpts/ptp/affordance_zdim8_weight1000_beta0.1_run0
+python experiments/compile_hierarchical_affordance.py --input DATA_CKPT/ptp/affordance_zdim8_weight1000_beta0.1_run0
 ```
 Lastly, we copy the affordance model to the data folder:
 ```
-cp -r /hdd/ckpts/ptp/affordance_zdim8_weight1000_beta0.1_run0 /hdd/data/env6_td_pnp_push/pretrained/
+cp -r DATA_CKPT/ptp/affordance_zdim8_weight1000_beta0.1_run0 DATA_PATH/env6_td_pnp_push/pretrained/
 ```
-To visualize loss curves and samples from the affordance model, open the tensorboard log files with `tensorboard --logdir /hdd/ckpts/ptp`.
+To visualize loss curves and samples from the affordance model, open the tensorboard log files with `tensorboard --logdir DATA_CKPT/ptp`.
 
-### Training RL
+### Training PTP
 To train offline RL and finetune online in our simulated environment with our hierarchical planner, run
 ```
 python experiments/train_eval_ptp.py 
---data_dir /hdd/data --local --gpu --save_pretrained 
---name exp01
---arg_binding num_demos=20
---arg_binding eval_seeds=2
---arg_binding algo_kwargs.batch_size=256
---arg_binding trainer_type=iql
---arg_binding expl_planner_type=hierarchical
---arg_binding eval_planner_type=hierarchical
---arg_binding use_image=0
---arg_binding use_gripper_observation=0
---arg_binding policy_kwargs.std=0.15
---arg_binding algo_kwargs.num_online_trains_per_train_loop=2000
---arg_binding reward_kwargs.reward_type=sparse
---arg_binding reward_kwargs.epsilon=2.0
---arg_binding expl_contextual_env_kwargs.num_planning_steps=8
---arg_binding eval_contextual_env_kwargs.num_planning_steps=8
---arg_binding expl_contextual_env_kwargs.subgoal_reaching_thresh=2.0
---arg_binding eval_contextual_env_kwargs.subgoal_reaching_thresh=2.0
---arg_binding expl_planner_kwargs.prior_weight=0.01
---arg_binding eval_planner_kwargs.prior_weight=0.01
---arg_binding expl_planner_kwargs.values_weight=0.001
---arg_binding eval_planner_kwargs.values_weight=0.001
---arg_binding method_name=ptp
+--data_dir DATA_PATH --local --gpu --save_pretrained 
+--name exp_task0
+--arg_binding eval_seeds=0
 ```
 For our target tasks A, B, and C that we showed in the paper, the corresponding `eval_seeds` are 0, 1, and 2 respectively.
 
-### Visualizing RL
+### Visualizing PTP
 During training, the results will be saved to a file called under
 ```
 LOCAL_LOG_DIR/<exp_prefix>/<foldername>
