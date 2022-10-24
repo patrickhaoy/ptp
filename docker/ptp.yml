@@ -1,4 +1,4 @@
-name: railrl-ptp
+name: ptp
 channels:
   - pytorch
   - defaults
