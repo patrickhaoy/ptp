@@ -73,8 +73,8 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
 RUN conda update -y --name base conda && conda clean --all -y
 
 COPY environment.yml .
-RUN conda env create -f railrl-ptp.yml
-RUN echo "source activate railrl-ptp" >> ~/.bashrc
+RUN conda env create -f ptp.yml
+RUN echo "source activate ptp" >> ~/.bashrc
 # Use the railrl pip
 ENV OLDPATH $PATH
 ENV PATH /opt/conda/envs/railrl/bin:$PATH
