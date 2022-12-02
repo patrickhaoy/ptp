@@ -61,7 +61,7 @@ python shapenet_scripts/4dof_rotate_td_pnp_push_demo_collector_parallel.py --sav
 ```
 and resample new goals by running
 ```
-python shapenet_scripts/presample_goals_with_plan.py --output_dir DATA_PATH/env6_td_pnp_push/ --downsample --test_env_seeds 0 1 2 --timeout_k_steps_after_done 5 --mix_timeout_k
+python shapenet_scripts/presample_goal_with_plan.py --output_dir DATA_PATH/env6_td_pnp_push/ --downsample --test_env_seeds 0 1 2 --timeout_k_steps_after_done 5 --mix_timeout_k
 ```
 from the `bullet-manipulation` repository.
 
